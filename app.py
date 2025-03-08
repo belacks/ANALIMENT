@@ -26,6 +26,7 @@ def download_nltk_resources():
     nltk.download('stopwords')
     nltk.download('wordnet')
     nltk.download('punkt')
+    nltk.download('punkt_tab')
 
 download_nltk_resources()
 
