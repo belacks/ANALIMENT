@@ -1,81 +1,310 @@
 import streamlit as st
 import pandas as pd
-import pickle
 import numpy as np
+import re
+import string
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
+from nltk.tokenize import word_tokenize
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
+import joblib
+import gdown
+import os
 
-# Fungsi untuk memuat model dan vectorizer
-def load_model_and_vectorizer():
-    with open("model.pkl", "rb") as model_file:  # Ganti dengan path model Anda
-        models = pickle.load(model_file)  # Misalnya dict { "SVC": model_svc, "LR": model_lr, "NB": model_nb, "KNN": model_knn }
-    with open("vectorizer.pkl", "rb") as vectorizer_file:  # Ganti dengan path vectorizer Anda
-        vectorizer = pickle.load(vectorizer_file)
-    return models, vectorizer
+# Judul aplikasi dengan sedikit styling
+st.set_page_config(
+    page_title="Analisis Sentimen Tweet",
+    page_icon="🐦",
+    layout="wide"
+)
 
-# Fungsi untuk prediksi sentimen
-def predict_sentiment(text, vectorizer, model):
-    text_vectorized = vectorizer.transform([text])  # Transformasi teks menjadi vektor fitur
-    prediction = model.predict(text_vectorized)  # Prediksi menggunakan model
-    confidence = np.max(model.predict_proba(text_vectorized))  # Prediksi confidence
-    sentiment = "Positif" if prediction == 0 else "Negatif"
-    return sentiment, confidence
+# Fungsi untuk mengunduh file dari Google Drive
+@st.cache_resource
+def download_models():
+    # Direktori untuk menyimpan model
+    if not os.path.exists('models'):
+        os.makedirs('models')
+    
+    # URL Google Drive untuk setiap model dan vectorizer
+    file_ids = {
+        'vectorizer.joblib': 'https://drive.google.com/uc?export=download&id=16APGmUhdSNXIN4wXqEtRr_FL-f-aLR7J',
+        'svc_model.joblib': 'https://drive.google.com/uc?export=download&id=1ThZvVawKukcCAuPnE278IxTz86iuflmo',
+        'lr_model.joblib': 'https://drive.google.com/uc?export=download&id=1uMjCePvyPRUsnoq8Wkv65p8n551SIt0S',
+        'nb_model.joblib': 'https://drive.google.com/uc?export=download&id=1IodoKbn1eMSI0xlRnkYpY0msCDoGAEv6',
+        'knn_model.joblib': 'https://drive.google.com/uc?export=download&id=15SffKdmGpdPFhIcFr-ceFjZbEPIDq7aX'
+    }
+    
+    for filename, file_id in file_ids.items():
+        output_path = f'models/{filename}'
+        if not os.path.exists(output_path):
+            try:
+                url = f'https://drive.google.com/uc?id={file_id}'
+                gdown.download(url, output_path, quiet=False)
+                st.success(f"Downloaded {filename}")
+            except Exception as e:
+                st.error(f"Error downloading {filename}: {e}")
+                return False
+    
+    return True
 
-# Fungsi utama untuk Streamlit
+# Download NLTK resources
+@st.cache_resource
+def download_nltk_resources():
+    try:
+        nltk.download('punkt', quiet=True)
+        nltk.download('stopwords', quiet=True)
+        return True
+    except Exception as e:
+        st.error(f"Error downloading NLTK resources: {e}")
+        return False
+
+# Load all models
+@st.cache_resource
+def load_models():
+    models = {}
+    try:
+        # Load vectorizer
+        models['vectorizer'] = joblib.load('models/vectorizer.joblib')
+        
+        # Load classification models
+        models['SVC'] = joblib.load('models/svc_model.joblib')
+        models['Logistic Regression'] = joblib.load('models/lr_model.joblib')
+        models['Naive Bayes'] = joblib.load('models/nb_model.joblib')
+        models['KNN'] = joblib.load('models/knn_model.joblib')
+        
+        return models
+    except Exception as e:
+        st.error(f"Error loading models: {e}")
+        return None
+
+# Fungsi preprocessing teks
+def preprocess_text(text):
+    # Mengubah ke lowercase
+    text = str(text).lower()
+    
+    # Menghapus URL
+    text = re.sub(r'http\S+', '', text)
+    
+    # Menghapus username Twitter
+    text = re.sub(r'@\w+', '', text)
+    
+    # Menghapus hashtag
+    text = re.sub(r'#\w+', '', text)
+    
+    # Menghapus tanda baca
+    text = text.translate(str.maketrans('', '', string.punctuation))
+    
+    # Menghapus angka
+    text = re.sub(r'\d+', '', text)
+    
+    # Menghapus karakter khusus dan spasi berlebih
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    # Tokenisasi
+    tokens = word_tokenize(text)
+    
+    # Menghapus stopword
+    stop_words = set(stopwords.words('english'))
+    tokens = [token for token in tokens if token not in stop_words]
+    
+    # Stemming
+    stemmer = PorterStemmer()
+    tokens = [stemmer.stem(token) for token in tokens]
+    
+    # Menggabungkan kembali menjadi kalimat
+    text = ' '.join(tokens)
+    
+    return text
+
+# Fungsi untuk melakukan prediksi
+def predict_sentiment(text, model_name, models):
+    # Preprocess teks
+    clean_text = preprocess_text(text)
+    
+    # Vectorize teks
+    vectorizer = models['vectorizer']
+    text_vectorized = vectorizer.transform([clean_text])
+    
+    # Prediksi dengan model yang dipilih
+    model = models[model_name]
+    prediction = model.predict(text_vectorized)[0]
+    
+    # Mencoba mendapatkan probabilitas jika model mendukung
+    try:
+        probabilities = model.predict_proba(text_vectorized)[0]
+        prob_df = pd.DataFrame({
+            'Sentimen': ['Negatif', 'Positif'],
+            'Probabilitas': [probabilities[0], probabilities[1]]
+        })
+    except:
+        prob_df = None
+    
+    return prediction, clean_text, prob_df
+
+# Main App
 def main():
-    # Set page config
-    st.set_page_config(page_title="Analisis Sentimen Tweet", page_icon="🐦", layout="wide")
+    # App header dengan styling
+    st.title('🐦 Analisis Sentimen Tweet')
+    st.markdown("""
+    <style>
+    .main-header {
+        font-size: 2.5rem;
+        color: #1DA1F2;
+        text-align: center;
+    }
+    .sub-header {
+        font-size: 1.5rem;
+        color: #657786;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
     
-    # Tampilan awal
-    st.title("Aplikasi Analisis Sentimen Tweet")
-    st.write("Aplikasi ini menggunakan model machine learning untuk menganalisis sentimen dari teks yang Anda masukkan.")
+    st.markdown('<p class="sub-header">Analisis sentimen teks menggunakan Machine Learning</p>', unsafe_allow_html=True)
     
-    # Load model dan vectorizer
-    models, vectorizer = load_model_and_vectorizer()
-
-    # Sidebar untuk navigasi
-    page = st.sidebar.selectbox("Navigasi", ["Beranda", "Prediksi Sentimen"])
-
-    if page == "Beranda":
-        st.header("Selamat Datang di Aplikasi Analisis Sentimen")
-        st.write("""
-            Aplikasi ini membantu Anda menganalisis sentimen dari teks menggunakan beberapa model machine learning.
-            
-            ### Cara Penggunaan:
-            1. **Prediksi Sentimen**: Masukkan teks Anda untuk melihat prediksi sentimennya menggunakan model pilihan.
-            """)
-
-    elif page == "Prediksi Sentimen":
-        st.header("Prediksi Sentimen Tweet")
-        st.write("Masukkan teks dan lihat prediksi sentimennya.")
-
-        # Pilih model untuk analisis
-        model_option = st.selectbox("Pilih Model", ["SVC", "Logistic Regression", "Naive Bayes", "KNN"])
-
-        # Input teks dari pengguna
-        text_input = st.text_area("Masukkan teks tweet:", "", height=150)
-
-        # Button untuk melakukan prediksi
-        if st.button("Analisis Sentimen"):
-            if text_input:
-                with st.spinner("Menganalisis sentimen..."):
-                    # Pilih model yang dipilih dari dropdown
-                    model = models[model_option]
-                    sentiment, confidence = predict_sentiment(text_input, vectorizer, model)
+    # Unduh resources NLTK dan model
+    resources_ready = download_nltk_resources()
+    models_downloaded = download_models()
+    
+    if not resources_ready or not models_downloaded:
+        st.warning("Ada masalah dalam mengunduh resources yang diperlukan. Aplikasi mungkin tidak berfungsi dengan baik.")
+    
+    # Load models
+    models = load_models()
+    
+    if not models:
+        st.error("Gagal memuat model. Silakan coba lagi nanti.")
+        return
+    
+    # Sidebar untuk memilih model
+    st.sidebar.title("Pengaturan")
+    selected_model = st.sidebar.selectbox(
+        "Pilih Model Klasifikasi:",
+        ["SVC", "Logistic Regression", "Naive Bayes", "KNN"]
+    )
+    
+    # Tab untuk navigasi
+    tab1, tab2, tab3 = st.tabs(["Prediksi Sentimen", "Contoh Input", "Tentang"])
+    
+    with tab1:
+        st.header("Prediksi Sentimen")
+        
+        # Input teks untuk analisis
+        text_input = st.text_area(
+            "Masukkan teks untuk analisis sentimen:",
+            "This movie was fantastic! The acting was top-notch and the story was very engaging."
+        )
+        
+        if st.button('Prediksi Sentimen', key='predict_button'):
+            with st.spinner('Memproses...'):
+                # Melakukan prediksi
+                prediction, clean_text, prob_df = predict_sentiment(text_input, selected_model, models)
                 
                 # Menampilkan hasil
-                sentiment_color = "green" if sentiment == "Positif" else "red"
-                st.markdown(f"""
-                    <div style="padding: 20px; border-radius: 10px; background-color: {sentiment_color}10; border: 1px solid {sentiment_color};">
-                        <h3 style="color: {sentiment_color}; margin-top: 0;">Prediksi Sentimen: {sentiment}</h3>
-                        <p>Tingkat kepercayaan: {confidence:.2f}</p>
-                    </div>
-                """, unsafe_allow_html=True)
-
-            else:
-                st.error("Silakan masukkan teks terlebih dahulu.")
+                sentiment = "Positif" if prediction == 1 else "Negatif"
+                
+                # Warna sesuai sentimen
+                if sentiment == "Positif":
+                    st.success(f'Prediksi Sentimen: {sentiment}')
+                else:
+                    st.error(f'Prediksi Sentimen: {sentiment}')
+                
+                # Menampilkan teks yang sudah dibersihkan
+                st.subheader('Teks setelah preprocessing:')
+                st.info(clean_text)
+                
+                # Menampilkan probabilitas jika tersedia
+                if prob_df is not None:
+                    st.subheader("Probabilitas:")
+                    
+                    # Split columns for visualization
+                    col1, col2 = st.columns([1, 2])
+                    
+                    with col1:
+                        st.dataframe(prob_df)
+                    
+                    with col2:
+                        # Bar chart probabilitas
+                        chart_data = prob_df.set_index('Sentimen')
+                        st.bar_chart(chart_data)
+    
+    with tab2:
+        st.header("Contoh Input")
+        
+        # Example cards with different sentiment examples
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.subheader("Contoh Positif")
+            examples_positive = [
+                "This movie was fantastic! The acting was top-notch and the story was very engaging.",
+                "I absolutely loved the service. The staff was friendly and attentive.",
+                "The product exceeded my expectations. It's worth every penny!",
+                "Had a great time at the concert. The band's energy was infectious!"
+            ]
+            
+            for i, example in enumerate(examples_positive):
+                st.info(example)
+                if st.button(f'Prediksi Contoh Positif {i+1}', key=f'pos_example_{i}'):
+                    with st.spinner('Memproses...'):
+                        prediction, clean_text, prob_df = predict_sentiment(example, selected_model, models)
+                        sentiment = "Positif" if prediction == 1 else "Negatif"
+                        if sentiment == "Positif":
+                            st.success(f'Prediksi Sentimen: {sentiment}')
+                        else:
+                            st.error(f'Prediksi Sentimen: {sentiment}')
+        
+        with col2:
+            st.subheader("Contoh Negatif")
+            examples_negative = [
+                "I was disappointed with the plot. It felt like a waste of time.",
+                "The customer service was terrible. I waited for hours with no resolution.",
+                "Don't buy this product. It broke after one use.",
+                "The restaurant was overpriced and the food was bland."
+            ]
+            
+            for i, example in enumerate(examples_negative):
+                st.error(example)
+                if st.button(f'Prediksi Contoh Negatif {i+1}', key=f'neg_example_{i}'):
+                    with st.spinner('Memproses...'):
+                        prediction, clean_text, prob_df = predict_sentiment(example, selected_model, models)
+                        sentiment = "Positif" if prediction == 1 else "Negatif"
+                        if sentiment == "Positif":
+                            st.success(f'Prediksi Sentimen: {sentiment}')
+                        else:
+                            st.error(f'Prediksi Sentimen: {sentiment}')
+    
+    with tab3:
+        st.header("Tentang Aplikasi")
+        st.write("""
+        ### Analisis Sentimen Tweet
+        
+        Aplikasi ini menggunakan model machine learning untuk memprediksi sentimen dari teks yang dimasukkan.
+        
+        #### Proses Analisis Sentimen:
+        1. **Preprocessing**: Teks dibersihkan (URL, username, tanda baca), diubah ke lowercase, dan melalui proses tokenisasi, penghapusan stopwords, dan stemming.
+        2. **Vektorisasi**: Teks diubah menjadi vektor fitur menggunakan TF-IDF.
+        3. **Klasifikasi**: Model machine learning memprediksi sentimen (positif atau negatif).
+        
+        #### Model yang Tersedia:
+        - **SVC**: Support Vector Classifier, efektif untuk dimensi tinggi
+        - **Logistic Regression**: Model klasifikasi linear yang sederhana dan cepat
+        - **Naive Bayes**: Algoritma probabilistik berdasarkan teorema Bayes
+        - **KNN**: K-Nearest Neighbors, algoritma berbasis jarak
+        
+        #### Dataset:
+        Model dilatih menggunakan dataset tweet yang dilabeli dengan sentimen positif (1) dan negatif (0).
+        """)
+        
+        # Informasi tentang developer
+        st.subheader("Developer")
+        st.write("Dibuat sebagai bagian dari tugas analisis sentimen.")
 
 if __name__ == "__main__":
     main()
