@@ -122,16 +122,17 @@ def lemmatize_text(text):
 
 # Fungsi untuk melakukan prediksi
 def predict_sentiment(text, model_name, models):
-    # Preprocess teks
-    clean_text = preprocess_text(text.strip)
-    
-    # Vectorize teks
-    vectorizer = models['vectorizer']
-    text_vectorized = vectorizer.transform([clean_text])
-    
-    # Prediksi dengan model yang dipilih
-    model = models[model_name]
-    prediction = model.predict(text_vectorized)[0]
+    # Prapemrosesan
+    preprocessed_text = preprocess_text(new_text)
+    preprocessed_text = remove_stopwords(preprocessed_text)
+    preprocessed_text = lemmatize_text(preprocessed_text)
+
+    # Vektorisasi
+    text_tfidf = tfidf_vectorizer.transform([preprocessed_text])
+
+    # Prediksi
+    prediction = model.predict(text_tfidf)[0]
+    proba = model.predict_proba(text_tfidf)[0]
     
     # Mencoba mendapatkan probabilitas jika model mendukung
     try:
