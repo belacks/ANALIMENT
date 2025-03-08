@@ -132,7 +132,7 @@ def predict_sentiment(text, model, vectorizer):
     probability = model.predict_proba(text_vector)[0]
     
     # Get sentiment label and confidence
-    sentiment = 'Positif' if prediction == 0 else 'Negatif'
+    sentiment = 'Negatif' if prediction == 0 else 'Positif'
     confidence = probability[1] if sentiment == 'Positif' else probability[0]
     
     return sentiment, confidence
