@@ -69,13 +69,13 @@ def load_models():
     models = {}
     try:
         # Load vectorizer
-        models['vectorizer'] = joblib.load('models/vectorizer.joblib')
+        models['vectorizer'] = joblib.load('vectorizer.joblib')
         
         # Load classification models
-        models['SVC'] = joblib.load('models/svc_model.joblib')
-        models['Logistic Regression'] = joblib.load('models/lr_model.joblib')
-        models['Naive Bayes'] = joblib.load('models/nb_model.joblib')
-        models['KNN'] = joblib.load('models/knn_model.joblib')
+        models['SVC'] = joblib.load('svc_model.joblib')
+        models['Logistic Regression'] = joblib.load('lr_model.joblib')
+        models['Naive Bayes'] = joblib.load('nb_model.joblib')
+        models['KNN'] = joblib.load('knn_model.joblib')
         
         return models
     except Exception as e:
