@@ -123,7 +123,7 @@ def lemmatize_text(text):
 # Fungsi untuk melakukan prediksi
 def predict_sentiment(text, model_name, models):
     # Prapemrosesan
-    preprocessed_text = preprocess_text(new_text)
+    preprocessed_text = preprocess_text(text)
     preprocessed_text = remove_stopwords(preprocessed_text)
     preprocessed_text = lemmatize_text(preprocessed_text)
 
