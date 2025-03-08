@@ -43,7 +43,7 @@ def download_models():
         output_path = f'models/{filename}'
         if not os.path.exists(output_path):
             try:
-                url = f'https://drive.google.com/uc?id={file_id}'
+                url = f'https://drive.google.com/uc?export=download&id={file_id}'
                 gdown.download(url, output_path, quiet=False)
                 st.success(f"Downloaded {filename}")
             except Exception as e:
