@@ -23,26 +23,35 @@ st.set_page_config(
     layout="wide"
 )
 
-# Download NLTK resources - pindahkan fungsi ini ke awal aplikasi
-# dan panggil secara langsung (bukan sebagai cache_resource)
+# Setup NLTK data path
+# Coba 3 pendekatan berbeda untuk NLTK data
+nltk_data_paths = [
+    os.path.join(os.getcwd(), 'nltk_data'),
+    '/app/nltk_data',  # Khusus untuk Streamlit Cloud
+    '/home/appuser/nltk_data'  # Khusus untuk Streamlit Cloud
+]
+
+for path in nltk_data_paths:
+    if path not in nltk.data.path:
+        nltk.data.path.append(path)
+
+# Download NLTK resources - dipanggil setiap kali aplikasi dijalankan
 def download_nltk_resources():
     try:
-        # Tambahkan verbose=True untuk melihat proses download
-        nltk.download('punkt', quiet=False)
-        nltk.download('stopwords', quiet=False)
-        # Pastikan wordnet diunduh dengan benar
-        nltk.download('wordnet', quiet=False)
-        # Jika ada resource lain yang diperlukan
-        nltk.download('omw-1.4', quiet=False)  # Open Multilingual Wordnet
+        # Pastikan seluruh data NLTK yang dibutuhkan diunduh
+        resources = ['punkt', 'stopwords', 'wordnet', 'omw-1.4']
+        for resource in resources:
+            try:
+                nltk.data.find(f'corpora/{resource}')
+                st.sidebar.success(f"✅ Resource '{resource}' sudah tersedia")
+            except LookupError:
+                st.sidebar.info(f"⏳ Mengunduh resource '{resource}'...")
+                nltk.download(resource, quiet=False)
+                st.sidebar.success(f"✅ Resource '{resource}' berhasil diunduh")
         return True
     except Exception as e:
-        st.error(f"Error downloading NLTK resources: {e}")
+        st.sidebar.error(f"❌ Error downloading NLTK resources: {e}")
         return False
-
-# Panggil fungsi secara langsung saat aplikasi dimulai
-nltk_resources_downloaded = download_nltk_resources()
-if not nltk_resources_downloaded:
-    st.error("⚠️ Gagal mengunduh resource NLTK yang diperlukan. Aplikasi mungkin tidak berfungsi dengan baik.")
 
 # Fungsi untuk mengunduh file dari Google Drive
 @st.cache_resource
@@ -66,9 +75,9 @@ def download_models():
             try:
                 url = f'https://drive.google.com/uc?id={file_id}'
                 gdown.download(url, output_path, quiet=False)
-                st.success(f"Downloaded {filename}")
+                st.sidebar.success(f"✅ Downloaded {filename}")
             except Exception as e:
-                st.error(f"Error downloading {filename}: {e}")
+                st.sidebar.error(f"❌ Error downloading {filename}: {e}")
                 return False
     
     return True
@@ -92,21 +101,8 @@ def load_models():
         st.error(f"Error loading models: {e}")
         return None
 
-# Verifikasi bahwa stopwords dan lemmatizer dapat diakses
-try:
-    # Coba inisialisasi lemmatizer untuk memastikan wordnet tersedia
-    lemmatizer = WordNetLemmatizer()
-    lemmatizer.lemmatize("testing")
-    
-    # Coba akses stopwords untuk memastikan tersedia
-    stop_words = set(stopwords.words('english'))
-    st.success("✅ NLTK resources berhasil dimuat")
-except Exception as e:
-    st.error(f"⚠️ Error saat mengakses NLTK resources: {e}")
-
-# Fungsi preprocessing untuk teks
+# Fungsi preprocessing untuk teks - PENTING: HARUS SAMA DENGAN YANG DI NOTEBOOK
 def preprocess_text(text):
-    # Pembersihan teks secara bertahap
     # Convert to string if not already
     text = str(text)
     
@@ -126,37 +122,49 @@ def preprocess_text(text):
     text = re.sub(r'[^a-z\s]', '', text)
     
     # 6. Strip extra whitespace
-    text = text.strip()
-    
-    return text
+    return text.strip()
 
-# Fungsi untuk menghapus stopwords - menggunakan variabel global 
-# yang sudah diinisialisasi di awal
+# Fungsi untuk menghapus stopwords
 def remove_stopwords(text):
+    stop_words = set(stopwords.words('english'))
     words = text.split()
     filtered_words = [word for word in words if word not in stop_words]
     return ' '.join(filtered_words)
 
-# Fungsi untuk lemmatisasi - menggunakan variabel global
-# yang sudah diinisialisasi di awal
+# Fungsi untuk lemmatisasi
 def lemmatize_text(text):
+    lemmatizer = WordNetLemmatizer()
     words = text.split()
     lemmatized_words = [lemmatizer.lemmatize(word) for word in words]
     return ' '.join(lemmatized_words)
 
-# Fungsi untuk melakukan prediksi dengan preprocessing yang sesuai
-def predict_sentiment(text, model_name, models):
-    # 1. Preprocess teks - langkah dasar
-    clean_text = preprocess_text(text)
-    st.write(f"Setelah preprocessing dasar: '{clean_text}'")
+# Alternatif: Fungsi stemming jika lemmatisasi bermasalah
+def stem_text(text):
+    stemmer = PorterStemmer()
+    words = text.split()
+    stemmed_words = [stemmer.stem(word) for word in words]
+    return ' '.join(stemmed_words)
+
+# Fungsi preprocessing lengkap seperti di notebook Jupyter
+def full_preprocessing(text, use_stemming=False):
+    # 1. Preprocess teks dasar
+    text = preprocess_text(text)
     
     # 2. Hapus stopwords
-    clean_text = remove_stopwords(clean_text)
-    st.write(f"Setelah penghapusan stopwords: '{clean_text}'")
+    text = remove_stopwords(text)
     
-    # 3. Lakukan lemmatisasi
-    clean_text = lemmatize_text(clean_text)
-    st.write(f"Setelah lemmatisasi: '{clean_text}'")
+    # 3. Lakukan lemmatisasi atau stemming
+    if use_stemming:
+        text = stem_text(text)
+    else:
+        text = lemmatize_text(text)
+    
+    return text
+
+# Fungsi untuk melakukan prediksi
+def predict_sentiment(text, model_name, models, use_stemming=False):
+    # Preprocess teks
+    clean_text = full_preprocessing(text, use_stemming)
     
     # Vectorize teks
     vectorizer = models['vectorizer']
@@ -195,33 +203,47 @@ def main():
         text-align: center;
         margin-bottom: 30px;
     }
+    .stButton>button {
+        background-color: #1DA1F2;
+        color: white;
+        font-weight: bold;
+    }
     </style>
     """, unsafe_allow_html=True)
     
     st.markdown('<p class="sub-header">Analisis sentimen teks menggunakan Machine Learning</p>', unsafe_allow_html=True)
     
+    # Sidebar untuk pengaturan
+    st.sidebar.title("Pengaturan")
+    
+    # Download NLTK resources
+    with st.sidebar.expander("Status NLTK Resources", expanded=False):
+        nltk_resources_downloaded = download_nltk_resources()
+    
     # Unduh model
-    models_downloaded = download_models()
+    with st.sidebar.expander("Status Model", expanded=False):
+        models_downloaded = download_models()
     
     if not models_downloaded:
-        st.warning("Ada masalah dalam mengunduh model. Aplikasi mungkin tidak berfungsi dengan baik.")
+        st.warning("❌ Ada masalah dalam mengunduh model. Aplikasi mungkin tidak berfungsi dengan baik.")
     
     # Load models
     models = load_models()
     
     if not models:
-        st.error("Gagal memuat model. Silakan coba lagi nanti.")
+        st.error("❌ Gagal memuat model. Silakan coba lagi nanti.")
         return
     
-    # Sidebar untuk memilih model
-    st.sidebar.title("Pengaturan")
+    # Pilihan model klasifikasi
     selected_model = st.sidebar.selectbox(
         "Pilih Model Klasifikasi:",
         ["SVC", "Logistic Regression", "Naive Bayes", "KNN"]
     )
     
-    # Tambahkan checkbox untuk menampilkan debug info
-    show_debug = st.sidebar.checkbox("Tampilkan detail preprocessing", value=True)
+    # Opsi preprocessing
+    with st.sidebar.expander("Opsi Preprocessing", expanded=False):
+        use_stemming = st.checkbox("Gunakan Stemming (bukan Lemmatization)", value=False)
+        show_debug = st.checkbox("Tampilkan detail preprocessing", value=True)
     
     # Tab untuk navigasi
     tab1, tab2, tab3 = st.tabs(["Prediksi Sentimen", "Contoh Input", "Tentang"])
@@ -235,11 +257,36 @@ def main():
             "This movie was fantastic! The acting was top-notch and the story was very engaging."
         )
         
-        if st.button('Prediksi Sentimen', key='predict_button'):
+        col1, col2 = st.columns([1, 3])
+        with col1:
+            predict_button = st.button('Prediksi Sentimen', key='predict_button')
+        
+        if predict_button:
             try:
                 with st.spinner('Memproses...'):
+                    # Tahapan preprocessing untuk visibilitas
+                    if show_debug:
+                        text = text_input
+                        st.subheader("Tahapan Preprocessing:")
+                        
+                        # Step 1: Preprocessing dasar
+                        preprocessed = preprocess_text(text)
+                        st.info(f"**Setelah preprocessing dasar:** '{preprocessed}'")
+                        
+                        # Step 2: Hapus stopwords
+                        no_stopwords = remove_stopwords(preprocessed)
+                        st.info(f"**Setelah penghapusan stopwords:** '{no_stopwords}'")
+                        
+                        # Step 3: Lemmatisasi/Stemming
+                        if use_stemming:
+                            final = stem_text(no_stopwords)
+                            st.info(f"**Setelah stemming:** '{final}'")
+                        else:
+                            final = lemmatize_text(no_stopwords)
+                            st.info(f"**Setelah lemmatisasi:** '{final}'")
+                    
                     # Melakukan prediksi
-                    prediction, clean_text, prob_df = predict_sentiment(text_input, selected_model, models)
+                    prediction, clean_text, prob_df = predict_sentiment(text_input, selected_model, models, use_stemming)
                     
                     # Menampilkan hasil
                     sentiment = "Positif" if prediction == 1 else "Negatif"
@@ -251,9 +298,8 @@ def main():
                         st.error(f'Prediksi Sentimen: {sentiment}')
                     
                     # Menampilkan teks yang sudah dibersihkan
-                    if show_debug:
-                        st.subheader('Teks setelah preprocessing:')
-                        st.info(clean_text)
+                    st.subheader('Teks setelah preprocessing:')
+                    st.info(clean_text)
                     
                     # Menampilkan probabilitas jika tersedia
                     if prob_df is not None:
@@ -270,7 +316,7 @@ def main():
                             chart_data = prob_df.set_index('Sentimen')
                             st.bar_chart(chart_data)
             except Exception as e:
-                st.error(f"Terjadi kesalahan: {str(e)}")
+                st.error(f"❌ Terjadi kesalahan: {str(e)}")
                 st.error("Jika masalah masih terjadi, coba muat ulang halaman web")
     
     with tab2:
@@ -293,7 +339,7 @@ def main():
                 if st.button(f'Prediksi Contoh Positif {i+1}', key=f'pos_example_{i}'):
                     try:
                         with st.spinner('Memproses...'):
-                            prediction, clean_text, prob_df = predict_sentiment(example, selected_model, models)
+                            prediction, clean_text, prob_df = predict_sentiment(example, selected_model, models, use_stemming)
                             sentiment = "Positif" if prediction == 1 else "Negatif"
                             if sentiment == "Positif":
                                 st.success(f'Prediksi Sentimen: {sentiment}')
@@ -303,7 +349,7 @@ def main():
                             if show_debug:
                                 st.info(f'Teks setelah preprocessing: {clean_text}')
                     except Exception as e:
-                        st.error(f"Terjadi kesalahan: {str(e)}")
+                        st.error(f"❌ Terjadi kesalahan: {str(e)}")
         
         with col2:
             st.subheader("Contoh Negatif")
@@ -319,7 +365,7 @@ def main():
                 if st.button(f'Prediksi Contoh Negatif {i+1}', key=f'neg_example_{i}'):
                     try:
                         with st.spinner('Memproses...'):
-                            prediction, clean_text, prob_df = predict_sentiment(example, selected_model, models)
+                            prediction, clean_text, prob_df = predict_sentiment(example, selected_model, models, use_stemming)
                             sentiment = "Positif" if prediction == 1 else "Negatif"
                             if sentiment == "Positif":
                                 st.success(f'Prediksi Sentimen: {sentiment}')
@@ -329,7 +375,7 @@ def main():
                             if show_debug:
                                 st.info(f'Teks setelah preprocessing: {clean_text}')
                     except Exception as e:
-                        st.error(f"Terjadi kesalahan: {str(e)}")
+                        st.error(f"❌ Terjadi kesalahan: {str(e)}")
     
     with tab3:
         st.header("Tentang Aplikasi")
@@ -346,7 +392,7 @@ def main():
            - Hapus URL
            - Hapus karakter non-alfabet
         2. **Penghapusan Stopwords**: Menghapus kata-kata umum yang tidak memberikan informasi sentimen
-        3. **Lemmatisasi**: Mengubah kata ke bentuk dasarnya
+        3. **Lemmatisasi/Stemming**: Mengubah kata ke bentuk dasarnya
         4. **Vektorisasi**: Teks diubah menjadi vektor fitur menggunakan TF-IDF
         5. **Klasifikasi**: Model machine learning memprediksi sentimen (positif atau negatif)
         
@@ -363,6 +409,23 @@ def main():
         # Informasi tentang developer
         st.subheader("Developer")
         st.write("Dibuat sebagai bagian dari tugas analisis sentimen.")
+        
+        # Debugging info
+        with st.expander("Informasi Debug (untuk pengembang)", expanded=False):
+            st.write("### NLTK Data Path")
+            for path in nltk.data.path:
+                st.code(path)
+            
+            st.write("### Environment Info")
+            st.code(f"Current Working Directory: {os.getcwd()}")
+            
+            st.write("### Vectorizer Info")
+            try:
+                vectorizer = models['vectorizer']
+                st.code(f"Jumlah fitur: {len(vectorizer.get_feature_names_out())}")
+                st.code(f"Contoh fitur: {vectorizer.get_feature_names_out()[:10]}")
+            except:
+                st.warning("Vectorizer tidak tersedia")
 
 if __name__ == "__main__":
     main()
