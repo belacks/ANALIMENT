@@ -32,18 +32,18 @@ def download_models():
     
     # URL Google Drive untuk setiap model dan vectorizer
     file_ids = {
-        'vectorizer.joblib': '16APGmUhdSNXIN4wXqEtRr_FL-f-aLR7J',
-        'svc_model.joblib': '1ThZvVawKukcCAuPnE278IxTz86iuflmo',
-        'lr_model.joblib': '1uMjCePvyPRUsnoq8Wkv65p8n551SIt0S',
-        'nb_model.joblib': '1IodoKbn1eMSI0xlRnkYpY0msCDoGAEv6',
-        'knn_model.joblib': '15SffKdmGpdPFhIcFr-ceFjZbEPIDq7aX'
+        'vectorizer.pkl': '16APGmUhdSNXIN4wXqEtRr_FL-f-aLR7J',
+        'svc_model.pkl': '1ThZvVawKukcCAuPnE278IxTz86iuflmo',
+        'lr_model.pkl': '1uMjCePvyPRUsnoq8Wkv65p8n551SIt0S',
+        'nb_model.pkl': '1IodoKbn1eMSI0xlRnkYpY0msCDoGAEv6',
+        'knn_model.pkl': '15SffKdmGpdPFhIcFr-ceFjZbEPIDq7aX'
     }
     
     for filename, file_id in file_ids.items():
         output_path = f'models/{filename}'
         if not os.path.exists(output_path):
             try:
-                url = f'https://drive.google.com/uc?export=download&id={file_id}'
+                url = f'https://drive.google.com/uc?id={file_id}'
                 gdown.download(url, output_path, quiet=False)
                 st.success(f"Downloaded {filename}")
             except Exception as e:
@@ -69,13 +69,13 @@ def load_models():
     models = {}
     try:
         # Load vectorizer
-        models['vectorizer'] = joblib.load('models/vectorizer.joblib')
+        models['vectorizer'] = joblib.load('models/vectorizer.pkl')
         
         # Load classification models
-        models['SVC'] = joblib.load('models/svc_model..joblib')
-        models['Logistic Regression'] = joblib.load('models/lr_model..joblib')
-        models['Naive Bayes'] = joblib.load('models/nb_model..joblib')
-        models['KNN'] = joblib.load('models/knn_model..joblib')
+        models['SVC'] = joblib.load('models/svc_model.pkl')
+        models['Logistic Regression'] = joblib.load('models/lr_model.pkl')
+        models['Naive Bayes'] = joblib.load('models/nb_model.pkl')
+        models['KNN'] = joblib.load('models/knn_model.pkl')
         
         return models
     except Exception as e:
