@@ -124,6 +124,8 @@ svm_model, nb_model, lr_model, knn_model, tfidf_vectorizer = load_models()
 def predict_sentiment(text, model, vectorizer):
     # Preprocess text
     cleaned = preprocess_text(text)
+    cleaned = remove_stopwords(cleaned)
+    cleaned = lemmatize_text(cleaned)
     
     # Vectorize
     text_vector = vectorizer.transform([cleaned])
