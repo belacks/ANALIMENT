@@ -6,4 +6,4 @@ matplotlib
 seaborn
 wordcloud
 numpy
-pickle5
+pickle
