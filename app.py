@@ -15,7 +15,7 @@ import os
 
 # Set page config
 st.set_page_config(
-    page_title="Analisis Sentimen Tweet",
+    page_title="Analisis Sentimen IMDB Movie Ratings",
     page_icon="📊",
     layout="wide"
 )
@@ -85,11 +85,11 @@ def preprocess_text(text):
 def download_models():
     # URL files from Google Drive (Ganti dengan URL Google Drive Anda)
     model_urls = {
-        'svm_model.joblib': 'https://drive.google.com/uc?export=download&id=1N5ThzaXN-rug-N-51b5oN5HFrOPYLzFV',
-        'nb_model.joblib': 'https://drive.google.com/uc?export=download&id=1jYfH6KxITK4I_i_OqhBR9VAa6NPFT5JL',
-        'lr_model.joblib': 'https://drive.google.com/uc?export=download&id=1QLqF4_pm3c4yd1guyxGidVbfJOOrbRNs',
-        'knn_model.joblib': 'https://drive.google.com/uc?export=download&id=1l91e9iUt8Eug7V_f2wmn9YppIOMYrGoc',
-        'tfidf_vectorizer.joblib': 'https://drive.google.com/uc?export=download&id=1t--JZy5p9GoAW0sFw3NDQT_ySXH0Xp9H'
+        'svm_model.joblib': 'https://drive.google.com/uc?export=download&id=1RN3SNzfnz1wspVvVCfGnE_hYh3Ug-Qpd',
+        'nb_model.joblib': 'https://drive.google.com/uc?export=download&id=1R5_ikVIb_pDN__D5-g01h8CSuqb9zfFG',
+        'lr_model.joblib': 'https://drive.google.com/uc?export=download&id=1fOi5vzKLE98MXGhF_e8pdZ9pjiiE6DtA',
+        'knn_model.joblib': 'https://drive.google.com/uc?export=download&id=1IgqQEcG9fqHZ57qO3cQCRMA8qo_zucNE',
+        'tfidf_vectorizer.joblib': 'https://drive.google.com/uc?export=download&id=15fFRty5W0MtvIOPVeHJ9S7gnpg_iTbZ0'
     }
     
     # Buat folder models jika belum ada
