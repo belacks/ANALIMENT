@@ -6,4 +6,5 @@ matplotlib
 seaborn
 wordcloud
 numpy
-pickle
+joblib
+gdown
