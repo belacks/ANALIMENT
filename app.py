@@ -32,11 +32,11 @@ def download_models():
     
     # URL Google Drive untuk setiap model dan vectorizer
     file_ids = {
-        'vectorizer.joblib': 'https://drive.google.com/uc?export=download&id=16APGmUhdSNXIN4wXqEtRr_FL-f-aLR7J',
-        'svc_model.joblib': 'https://drive.google.com/uc?export=download&id=1ThZvVawKukcCAuPnE278IxTz86iuflmo',
-        'lr_model.joblib': 'https://drive.google.com/uc?export=download&id=1uMjCePvyPRUsnoq8Wkv65p8n551SIt0S',
-        'nb_model.joblib': 'https://drive.google.com/uc?export=download&id=1IodoKbn1eMSI0xlRnkYpY0msCDoGAEv6',
-        'knn_model.joblib': 'https://drive.google.com/uc?export=download&id=15SffKdmGpdPFhIcFr-ceFjZbEPIDq7aX'
+        'vectorizer.joblib': '16APGmUhdSNXIN4wXqEtRr_FL-f-aLR7J',
+        'svc_model.joblib': '1ThZvVawKukcCAuPnE278IxTz86iuflmo',
+        'lr_model.joblib': '1uMjCePvyPRUsnoq8Wkv65p8n551SIt0S',
+        'nb_model.joblib': '1IodoKbn1eMSI0xlRnkYpY0msCDoGAEv6',
+        'knn_model.joblib': '15SffKdmGpdPFhIcFr-ceFjZbEPIDq7aX'
     }
     
     for filename, file_id in file_ids.items():
