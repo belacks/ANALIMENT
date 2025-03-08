@@ -83,44 +83,42 @@ def load_models():
         st.error(f"Error loading models: {e}")
         return None
 
+stop_words = set(stopwords.words('english'))
+stemmer = PorterStemmer()
+lemmatizer = WordNetLemmatizer()
 # Fungsi preprocessing teks
+# Fungsi preprocessing untuk teks
 def preprocess_text(text):
-    # Mengubah ke lowercase
-    text = str(text).lower()
-    
-    # Menghapus URL
-    text = re.sub(r'http\S+', '', text)
-    
-    # Menghapus username Twitter
-    text = re.sub(r'@\w+', '', text)
-    
-    # Menghapus hashtag
-    text = re.sub(r'#\w+', '', text)
-    
-    # Menghapus tanda baca
-    text = text.translate(str.maketrans('', '', string.punctuation))
-    
-    # Menghapus angka
-    text = re.sub(r'\d+', '', text)
-    
-    # Menghapus karakter khusus dan spasi berlebih
-    text = re.sub(r'\s+', ' ', text).strip()
-    
-    # Tokenisasi
-    tokens = word_tokenize(text)
+    # Pembersihan teks secara bertahap
+    print(f"Original: {text}")  # Tampilkan teks asli
+    text = text.lower()
+    print(f"Lowercase: {text}")  # Tampilkan setelah lowercase
+    text = re.sub(r'@\w+', '', text)      # Hapus mention
+    print(f"Remove Mention: {text}")  # Tampilkan setelah remove mention
+    text = re.sub(r'#\w+', '', text)      # Hapus hashtag
+    print(f"Remove Hashtags: {text}")  # Tampilkan setelah remove hashtag
+    text = re.sub(r'http\S+', '', text)   # Hapus URL
+    print(f"Remove URL: {text}")  # Tampilkan setelah remove URL
+    text = re.sub(r'[^a-z\s]', '', text)  # Hapus karakter selain huruf dan spasi
+    print(f"Remove Non-Alphabet: {text}")  # Tampilkan setelah remove non-alphabet
+
+    return text.strip()  # Kembalikan teks yang sudah dibersihkan
     
     # Menghapus stopword
-    stop_words = set(stopwords.words('english'))
-    tokens = [token for token in tokens if token not in stop_words]
+stop_words = set(stopwords.words('english'))
+def remove_stopwords(text):
+    words = text.split()
+    filtered_words = [word for word in words if word not in stop_words]
+    return ' '.join(filtered_words)
     
     # Stemming
     stemmer = PorterStemmer()
-    tokens = [stemmer.stem(token) for token in tokens]
-    
-    # Menggabungkan kembali menjadi kalimat
-    text = ' '.join(tokens)
-    
-    return text
+
+lemmatizer = WordNetLemmatizer()
+def lemmatize_text(text):
+    words = text.split()
+    lemmatized_words = [lemmatizer.lemmatize(word) for word in words]
+    return ' '.join(lemmatized_words)
 
 # Fungsi untuk melakukan prediksi
 def predict_sentiment(text, model_name, models):
