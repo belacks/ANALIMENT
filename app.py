@@ -63,10 +63,10 @@ def download_models():
     # URL Google Drive untuk setiap model dan vectorizer
     file_ids = {
         'vectorizer.pkl': '16APGmUhdSNXIN4wXqEtRr_FL-f-aLR7J',
-        'svc_model.pkl': '1ThZvVawKukcCAuPnE278IxTz86iuflmo',
-        'lr_model.pkl': '1uMjCePvyPRUsnoq8Wkv65p8n551SIt0S',
-        'nb_model.pkl': '1IodoKbn1eMSI0xlRnkYpY0msCDoGAEv6',
-        'knn_model.pkl': '15SffKdmGpdPFhIcFr-ceFjZbEPIDq7aX'
+        'svc_model.pkl': '1qobmO92v-0FZaAJkUuYgtMjtVq02mpD3',
+        'lr_model.pkl': '1aNfCuT_kzBSt6fHUrBmox2aB-tPCg2FY',
+        'nb_model.pkl': '1cZ3Nokx4DeWpoulLQsrz5VwvlyXXaJrN',
+        'knn_model.pkl': '15i9hv842HAUzZds-JbT133WRSuv7_ipm'
     }
     
     for filename, file_id in file_ids.items():
