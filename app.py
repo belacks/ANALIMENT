@@ -122,12 +122,12 @@ def lemmatize_text(text):
 
 # Fungsi untuk melakukan prediksi
 def predict_sentiment(text, model_name, models):
-    # Prapemrosesan
+    # Preprocess teks
     clean_text = preprocess_text(text)
-
+    
     # Vectorize teks
     vectorizer = models['vectorizer']
-    text_vectorized = vectorizer.transform([preprocessed_text])
+    text_vectorized = vectorizer.transform([clean_text])
     
     # Prediksi dengan model yang dipilih
     model = models[model_name]
@@ -143,7 +143,7 @@ def predict_sentiment(text, model_name, models):
     except:
         prob_df = None
     
-    return prediction, preprocessed_text, prob_df
+    return prediction, clean_text, prob_df
 
 # Main App
 def main():
