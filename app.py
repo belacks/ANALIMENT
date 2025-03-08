@@ -86,44 +86,61 @@ def load_models():
 stop_words = set(stopwords.words('english'))
 stemmer = PorterStemmer()
 lemmatizer = WordNetLemmatizer()
-# Fungsi preprocessing teks
 # Fungsi preprocessing untuk teks
 def preprocess_text(text):
     # Pembersihan teks secara bertahap
-    print(f"Original: {text}")  # Tampilkan teks asli
-    text = text.lower()
-    print(f"Lowercase: {text}")  # Tampilkan setelah lowercase
-    text = re.sub(r'@\w+', '', text)      # Hapus mention
-    print(f"Remove Mention: {text}")  # Tampilkan setelah remove mention
-    text = re.sub(r'#\w+', '', text)      # Hapus hashtag
-    print(f"Remove Hashtags: {text}")  # Tampilkan setelah remove hashtag
-    text = re.sub(r'http\S+', '', text)   # Hapus URL
-    print(f"Remove URL: {text}")  # Tampilkan setelah remove URL
-    text = re.sub(r'[^a-z\s]', '', text)  # Hapus karakter selain huruf dan spasi
-    print(f"Remove Non-Alphabet: {text}")  # Tampilkan setelah remove non-alphabet
-
-    return text  # Kembalikan teks yang sudah dibersihkan
+    # Convert to string if not already
+    text = str(text)
     
-    # Menghapus stopword
-stop_words = set(stopwords.words('english'))
+    # 1. Lowercase
+    text = text.lower()
+    
+    # 2. Remove mentions (@username)
+    text = re.sub(r'@\w+', '', text)
+    
+    # 3. Remove hashtags (#topic)
+    text = re.sub(r'#\w+', '', text)
+    
+    # 4. Remove URLs
+    text = re.sub(r'http\S+', '', text)
+    
+    # 5. Remove non-alphabetic characters (keep only letters and spaces)
+    text = re.sub(r'[^a-z\s]', '', text)
+    
+    # 6. Strip extra whitespace
+    text = text.strip()
+    
+    return text
+
+# Fungsi untuk menghapus stopwords
 def remove_stopwords(text):
+    stop_words = set(stopwords.words('english'))
     words = text.split()
     filtered_words = [word for word in words if word not in stop_words]
     return ' '.join(filtered_words)
-    
-    # Stemming
-    stemmer = PorterStemmer()
 
-lemmatizer = WordNetLemmatizer()
+# Fungsi untuk lemmatisasi
 def lemmatize_text(text):
+    lemmatizer = WordNetLemmatizer()
     words = text.split()
     lemmatized_words = [lemmatizer.lemmatize(word) for word in words]
     return ' '.join(lemmatized_words)
 
-# Fungsi untuk melakukan prediksi
+# Fungsi untuk melakukan prediksi dengan preprocessing yang sesuai
 def predict_sentiment(text, model_name, models):
-    # Preprocess teks
+    # 1. Preprocess teks - langkah dasar
     clean_text = preprocess_text(text)
+    
+    # 2. Hapus stopwords
+    clean_text = remove_stopwords(clean_text)
+    
+    # 3. Lakukan lemmatisasi
+    clean_text = lemmatize_text(clean_text)
+    
+    # Debug info
+    st.write(f"**Langkah-langkah preprocessing:**")
+    st.write(f"Original: '{text}'")
+    st.write(f"After preprocessing, stopwords removal, and lemmatization: '{clean_text}'")
     
     # Vectorize teks
     vectorizer = models['vectorizer']
