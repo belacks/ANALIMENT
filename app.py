@@ -127,12 +127,13 @@ def predict_sentiment(text, model_name, models):
     preprocessed_text = remove_stopwords(preprocessed_text)
     preprocessed_text = lemmatize_text(preprocessed_text)
 
-    # Vektorisasi
-    text_tfidf = tfidf_vectorizer.transform([preprocessed_text])
-
-    # Prediksi
-    prediction = model.predict(text_tfidf)[0]
-    proba = model.predict_proba(text_tfidf)[0]
+    # Vectorize teks
+    vectorizer = models['vectorizer']
+    text_vectorized = vectorizer.transform([preprocessed_text])
+    
+    # Prediksi dengan model yang dipilih
+    model = models[model_name]
+    prediction = model.predict(text_vectorized)[0]
     
     # Mencoba mendapatkan probabilitas jika model mendukung
     try:
@@ -144,7 +145,7 @@ def predict_sentiment(text, model_name, models):
     except:
         prob_df = None
     
-    return prediction, clean_text, prob_df
+    return prediction, preprocessed_text, prob_df
 
 # Main App
 def main():
