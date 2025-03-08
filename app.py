@@ -102,7 +102,7 @@ def preprocess_text(text):
     text = re.sub(r'[^a-z\s]', '', text)  # Hapus karakter selain huruf dan spasi
     print(f"Remove Non-Alphabet: {text}")  # Tampilkan setelah remove non-alphabet
 
-    return text.strip()  # Kembalikan teks yang sudah dibersihkan
+    return text  # Kembalikan teks yang sudah dibersihkan
     
     # Menghapus stopword
 stop_words = set(stopwords.words('english'))
@@ -123,9 +123,7 @@ def lemmatize_text(text):
 # Fungsi untuk melakukan prediksi
 def predict_sentiment(text, model_name, models):
     # Prapemrosesan
-    preprocessed_text = preprocess_text(text)
-    preprocessed_text = remove_stopwords(preprocessed_text)
-    preprocessed_text = lemmatize_text(preprocessed_text)
+    clean_text = preprocess_text(text)
 
     # Vectorize teks
     vectorizer = models['vectorizer']
