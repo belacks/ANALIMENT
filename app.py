@@ -123,7 +123,7 @@ def lemmatize_text(text):
 # Fungsi untuk melakukan prediksi
 def predict_sentiment(text, model_name, models):
     # Preprocess teks
-    clean_text = preprocess_text(text)
+    clean_text = preprocess_text(text.strip)
     
     # Vectorize teks
     vectorizer = models['vectorizer']
