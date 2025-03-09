@@ -86,11 +86,11 @@ def preprocess_text(text):
 def download_models():
     # URL files from Google Drive (Ganti dengan URL Google Drive Anda)
     model_urls = {
-        'svm_model.joblib': 'https://drive.google.com/file/d/1r0m2UwLeCY4_slo5l36aaWkuR9Jz0J7o/view?usp=drive_link',
-        'nb_model.joblib': 'https://drive.google.com/file/d/1P1j2c8laJNXxyVy798Zt8tRFKz-G5_Zp/view?usp=drive_link',
-        'lr_model.joblib': 'https://drive.google.com/file/d/1hK0Gj2Zof1J0N1amwjVbVzC1uPwkF8lp/view?usp=drive_link',
-        'knn_model.joblib': 'https://drive.google.com/file/d/1biEuwFqeopgZR4VXMkl7q4hzs6EmFe9d/view?usp=drive_link',
-        'tfidf_vectorizer.joblib': 'https://drive.google.com/file/d/1uKWDm45cp1aXpVZEK5txuHVDrPpL5iIy/view?usp=drive_link'
+        'svm_model.pkl': 'https://drive.google.com/file/d/1XwiwAYdrQks32GUr9CZofNt-c1nKBYca/view?usp=drive_link',
+        'nb_model.pkl': 'https://drive.google.com/file/d/1kwR9h4P4NuYcdAbb5k00Cg0gR_j4-IFF/view?usp=drive_link',
+        'lr_model.pkl': 'https://drive.google.com/file/d/1hK0Gj2Zof1J0N1amwjVbVzC1uPwkF8lp/view?usp=drive_link',
+        'knn_model.pkl': 'https://drive.google.com/file/d/1MUvGPGhQrFVQbcYVpL6H_mnz-Q4E47FZ/view?usp=drive_link',
+        'tfidf_vectorizer.pkl': 'https://drive.google.com/file/d/178ZzHBuAKaXFDCHDuyBiuLCyZKRFjv0w/view?usp=drive_link'
     }
     
     # Buat folder models jika belum ada
@@ -109,11 +109,11 @@ def load_models():
     download_models()
     
     # Load models dari drive
-    svm_model = joblib.load('models/svm_model.joblib')
-    nb_model = joblib.load('models/nb_model.joblib')
-    lr_model = joblib.load('models/lr_model.joblib')
-    knn_model = joblib.load('models/knn_model.joblib')
-    tfidf_vectorizer = joblib.load('models/tfidf_vectorizer.joblib')
+    svm_model = joblib.load('models/svm_model.pkl')
+    nb_model = joblib.load('models/nb_model.pkl')
+    lr_model = joblib.load('models/lr_model.pkl')
+    knn_model = joblib.load('models/knn_model.pkl')
+    tfidf_vectorizer = joblib.load('models/tfidf_vectorizer.pkl')
     
     return svm_model, nb_model, lr_model, knn_model, tfidf_vectorizer
 
