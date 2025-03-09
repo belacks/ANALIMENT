@@ -86,11 +86,11 @@ def preprocess_text(text):
 def download_models():
     # URL files from Google Drive (Ganti dengan URL Google Drive Anda)
     model_urls = {
-        'svm_model.joblib': 'https://drive.google.com/uc?export=download&id=1RN3SNzfnz1wspVvVCfGnE_hYh3Ug-Qpd',
-        'nb_model.joblib': 'https://drive.google.com/uc?export=download&id=1R5_ikVIb_pDN__D5-g01h8CSuqb9zfFG',
-        'lr_model.joblib': 'https://drive.google.com/uc?export=download&id=1fOi5vzKLE98MXGhF_e8pdZ9pjiiE6DtA',
-        'knn_model.joblib': 'https://drive.google.com/uc?export=download&id=1IgqQEcG9fqHZ57qO3cQCRMA8qo_zucNE',
-        'tfidf_vectorizer.joblib': 'https://drive.google.com/uc?export=download&id=15fFRty5W0MtvIOPVeHJ9S7gnpg_iTbZ0'
+        'svm_model.joblib': 'https://drive.google.com/file/d/1r0m2UwLeCY4_slo5l36aaWkuR9Jz0J7o/view?usp=drive_link',
+        'nb_model.joblib': 'https://drive.google.com/file/d/1P1j2c8laJNXxyVy798Zt8tRFKz-G5_Zp/view?usp=drive_link',
+        'lr_model.joblib': 'https://drive.google.com/file/d/1hK0Gj2Zof1J0N1amwjVbVzC1uPwkF8lp/view?usp=drive_link',
+        'knn_model.joblib': 'https://drive.google.com/file/d/1biEuwFqeopgZR4VXMkl7q4hzs6EmFe9d/view?usp=drive_link',
+        'tfidf_vectorizer.joblib': 'https://drive.google.com/file/d/1uKWDm45cp1aXpVZEK5txuHVDrPpL5iIy/view?usp=drive_link'
     }
     
     # Buat folder models jika belum ada
