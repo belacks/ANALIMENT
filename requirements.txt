@@ -7,4 +7,4 @@ scikit-learn==1.6.1
 nltk
 wordcloud
 joblib==1.4.2
-gdown
+gdown===5.2.0
