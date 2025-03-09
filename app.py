@@ -87,9 +87,9 @@ def download_models():
     # URL files from Google Drive (Ganti dengan URL Google Drive Anda)
     model_urls = {
         'svm_model.pkl': 'https://drive.google.com/uc?id=1XwiwAYdrQks32GUr9CZofNt-c1nKBYca&export=download',
-        'nb_model.pkl': 'https://drive.google.com/uc?id=1kwR9h4P4NuYcdAbb5k00Cg0gR_j4-IFF&export=download',
+        'NB_model.pkl': 'https://drive.google.com/uc?id=1kwR9h4P4NuYcdAbb5k00Cg0gR_j4-IFF&export=download',
         'lr_model.pkl': 'https://drive.google.com/uc?id=1hK0Gj2Zof1J0N1amwjVbVzC1uPwkF8lp&export=download',
-        'knn_model.pkl': 'https://drive.google.com/uc?id=1MUvGPGhQrFVQbcYVpL6H_mnz-Q4E47FZ&export=download',
+        'KNN_model.pkl': 'https://drive.google.com/uc?id=1MUvGPGhQrFVQbcYVpL6H_mnz-Q4E47FZ&export=download',
         'tfidf_vectorizer.pkl': 'https://drive.google.com/uc?id=178ZzHBuAKaXFDCHDuyBiuLCyZKRFjv0w&export=download'
     }
     
@@ -110,9 +110,9 @@ def load_models():
     
     # Load models dari drive
     svm_model = joblib.load('models/svm_model.pkl')
-    nb_model = joblib.load('models/nb_model.pkl')
+    nb_model = joblib.load('models/NB_model.pkl')
     lr_model = joblib.load('models/lr_model.pkl')
-    knn_model = joblib.load('models/knn_model.pkl')
+    knn_model = joblib.load('models/KNN_model.pkl')
     tfidf_vectorizer = joblib.load('models/tfidf_vectorizer.pkl')
     
     return svm_model, nb_model, lr_model, knn_model, tfidf_vectorizer
