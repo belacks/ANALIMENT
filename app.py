@@ -86,11 +86,11 @@ def preprocess_text(text):
 def download_models():
     # URL files from Google Drive (Ganti dengan URL Google Drive Anda)
     model_urls = {
-        'svm_model.pkl': 'https://drive.google.com/file/d/1XwiwAYdrQks32GUr9CZofNt-c1nKBYca/view?usp=drive_link',
-        'nb_model.pkl': 'https://drive.google.com/file/d/1kwR9h4P4NuYcdAbb5k00Cg0gR_j4-IFF/view?usp=drive_link',
-        'lr_model.pkl': 'https://drive.google.com/file/d/1hK0Gj2Zof1J0N1amwjVbVzC1uPwkF8lp/view?usp=drive_link',
-        'knn_model.pkl': 'https://drive.google.com/file/d/1MUvGPGhQrFVQbcYVpL6H_mnz-Q4E47FZ/view?usp=drive_link',
-        'tfidf_vectorizer.pkl': 'https://drive.google.com/file/d/178ZzHBuAKaXFDCHDuyBiuLCyZKRFjv0w/view?usp=drive_link'
+        'svm_model.pkl': 'https://drive.google.com/uc?id=1XwiwAYdrQks32GUr9CZofNt-c1nKBYca&export=download',
+        'nb_model.pkl': 'https://drive.google.com/uc?id=1kwR9h4P4NuYcdAbb5k00Cg0gR_j4-IFF&export=download',
+        'lr_model.pkl': 'https://drive.google.com/uc?id=1hK0Gj2Zof1J0N1amwjVbVzC1uPwkF8lp&export=download',
+        'knn_model.pkl': 'https://drive.google.com/uc?id=1MUvGPGhQrFVQbcYVpL6H_mnz-Q4E47FZ&export=download',
+        'tfidf_vectorizer.pkl': 'https://drive.google.com/uc?id=178ZzHBuAKaXFDCHDuyBiuLCyZKRFjv0w&export=download'
     }
     
     # Buat folder models jika belum ada
