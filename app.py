@@ -110,9 +110,9 @@ def load_models():
     
     # Load models dari drive
     svm_model = joblib.load('models/svm_model.joblib')
-    nb_model = joblib.load('models/NB_model.joblib')
+    nb_model = joblib.load('models/nb_model.joblib')
     lr_model = joblib.load('models/lr_model.joblib')
-    knn_model = joblib.load('models/KNN_model.joblib')
+    knn_model = joblib.load('models/knn_model.joblib')
     tfidf_vectorizer = joblib.load('models/tfidf_vectorizer.joblib')
     
     return svm_model, nb_model, lr_model, knn_model, tfidf_vectorizer
