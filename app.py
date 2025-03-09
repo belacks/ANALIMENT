@@ -86,11 +86,11 @@ def preprocess_text(text):
 def download_models():
     # URL files from Google Drive (Ganti dengan URL Google Drive Anda)
     model_urls = {
-        'svm_model.pkl': 'https://drive.google.com/uc?export=download&id=1XwiwAYdrQks32GUr9CZofNt-c1nKBYca',
-        'NB_model.pkl': 'https://drive.google.com/uc?export=download&id=1kwR9h4P4NuYcdAbb5k00Cg0gR_j4-IFF',
-        'lr_model.pkl': 'https://drive.google.com/uc?export=download&id=1MUvGPGhQrFVQbcYVpL6H_mnz-Q4E47FZ',
-        'KNN_model.pkl': 'https://drive.google.com/uc?export=download&id=178ZzHBuAKaXFDCHDuyBiuLCyZKRFjv0w',
-        'tfidf_vectorizer.pkl': 'https://drive.google.com/uc?export=download&id=117iQIhuCMpjMA96NwpOtLcHPh7djrK77'
+        'svm_model.joblib': 'https://drive.google.com/uc?export=download&id=1FYysyTuEd_iEbwGZKMncwjklv-H9LVZe',
+        'nb_model.joblib': 'https://drive.google.com/uc?export=download&id=1reHMrMmy7ZIWtIRkm2TCQ6CAV7HbwIbV',
+        'lr_model.joblib': 'https://drive.google.com/uc?export=download&id=1bADkbh-bLmUyenmFQVDHhGfDVxRmPFok',
+        'knn_model.joblib': 'https://drive.google.com/uc?export=download&id=1IkPfxW7pq2nxR6ZUtSECcTXDuiPEHx8i',
+        'tfidf_vectorizer.joblib': 'https://drive.google.com/uc?export=download&id=1ZQnFijrsIPik6ZTaZgKxHjuWCVuvf4ez'
     }
     
     # Buat folder models jika belum ada
@@ -109,11 +109,11 @@ def load_models():
     download_models()
     
     # Load models dari drive
-    svm_model = joblib.load('models/svm_model.pkl')
-    nb_model = joblib.load('models/NB_model.pkl')
-    lr_model = joblib.load('models/lr_model.pkl')
-    knn_model = joblib.load('models/KNN_model.pkl')
-    tfidf_vectorizer = joblib.load('models/tfidf_vectorizer.pkl')
+    svm_model = joblib.load('models/svm_model.joblib')
+    nb_model = joblib.load('models/NB_model.joblib')
+    lr_model = joblib.load('models/lr_model.joblib')
+    knn_model = joblib.load('models/KNN_model.joblib')
+    tfidf_vectorizer = joblib.load('models/tfidf_vectorizer.joblib')
     
     return svm_model, nb_model, lr_model, knn_model, tfidf_vectorizer
 
