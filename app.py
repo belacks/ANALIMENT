@@ -101,7 +101,7 @@ def download_models():
     for file_name, url in model_urls.items():
         output_path = os.path.join('models', file_name)
         if not os.path.exists(output_path):
-            gdown.download(url, output_path, quiet=False)
+            gdown.download(url, output_path, quiet=True)
 
 # Load models dan vectorizer
 @st.cache_resource
