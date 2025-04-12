@@ -15,7 +15,7 @@ import os
 
 # Set page config
 st.set_page_config(
-    page_title="Analisis Sentimen IMDB Movie Ratings",
+    page_title="Sentiment Analysis of IMDB Movie Ratings",
     page_icon="📊",
     layout="wide"
 )
