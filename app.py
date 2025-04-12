@@ -141,7 +141,7 @@ def predict_sentiment(text, model, vectorizer):
     return sentiment, confidence
 
 # Header aplikasi
-st.title("Analisis Sentimen Tweet")
+st.title("Sentiment Analysis of IMDB Movie Reviews")
 st.write("""
 Aplikasi ini melakukan analisis sentimen pada teks menggunakan empat model machine learning: 
 SVM, Naive Bayes, Logistic Regression, dan KNN.
@@ -282,4 +282,4 @@ with st.expander("Contoh Teks dengan Sentimen Negatif"):
 
 # Footer
 st.markdown("---")
-st.caption("Aplikasi Analisis Sentimen Tweet - Dibuat dengan Streamlit")
+st.caption("Aplikasi Analisis Sentimen IMDB Movie Reviews - Dibuat dengan Streamlit")
